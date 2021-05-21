@@ -370,7 +370,7 @@ def getter(ft):
 		elif(choice ==DOWNLOAD):
 			ft.recieve_something(".")
 		elif(choice==COMPRESS):
-			print("compression of file has been started Don't send any command now")
+			print("compression of file has been started ")
 		elif(choice==DELETE):
 			print("Deletion has been started")
 		elif(choice==TORRENT):
@@ -409,11 +409,15 @@ client.connect((host_ip, port))
 # client.sendall(SEND.to_bytes(1, byteorder='big'))
 client.sendall(GET.to_bytes(1, byteorder='big'))
 print("Connected to the server")
+print(host_ip,port)
 print("but if only this line is showing meaning somebody else request is processing so try again or wait")
 
 ft = my_ft(client)
 # send_all_files(client)
 # time.sleep(3)
+print("\n[!!] List of pending tasks")
+print(ft.recv_text())
+print("")
 getter(ft)
 client.close()
 

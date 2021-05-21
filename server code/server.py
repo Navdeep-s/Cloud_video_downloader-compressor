@@ -337,7 +337,7 @@ def send_content(ft):
 	return y
 
 
-def run_child(python_file_path,command):
+def run_child(python_file_path,command,message):
 		
 
 		args = ("python3", python_file_path, command)
@@ -346,7 +346,7 @@ def run_child(python_file_path,command):
 		if(newpid==0):
 			os.execvp(args[0],args)
 		else:
-			running_processes.append(newpid)
+			running_processes.append([newpid,message])
 			print(f"child has spawn with p id {newpid}")
 
 												
@@ -370,14 +370,14 @@ def provider(ft):
 				ft.send_file(lis[index])
 		elif(choice==COMPRESS):
 
-			run_child(os.path.join(root_path,"compress.py"),f"{lis[index]}")
+			run_child(os.path.join(root_path,"compress.py"),f"{lis[index]}",f"compression of {lis[index]} is pending")
 
 		elif(choice==DELETE):
 			os.system(f"rm -r \"{lis[index]}\"")
 		elif(choice==TORRENT):
 			magnet_link = ft.recv_text()
 			if(magnet_link!=-1):
-				run_child(os.path.join(root_path,"download_torrent.py"),magnet_link)
+				run_child(os.path.join(root_path,"download_torrent.py"),magnet_link,f"{lis[index]} is still downloading")
 		elif(choice==SCREENSHOT):
 			number_of_ss = ft.recv_int()
 			temp_path =os.path.join(root_path,"screen_shot.py")
@@ -414,6 +414,11 @@ def handle_client(ft):
 			print("Error in handle client",e)
 		
 	elif(conn_type==GET):
+
+		strin = ""
+		for _,message in running_processes:
+			strin =strin+message+"\n"
+		ft.send_text(strin)
 		provider(ft)
 		
 
@@ -452,7 +457,7 @@ while True:
 		print ('Got connection from', addr )
 		ft = my_ft(c)
 		handle_client(ft)
-		for k in running_processes:
+		for k,_ in running_processes:
 			pid,status = os.waitpid(k,os.WNOHANG)
 			if(pid>0):
 				running_processes.remove(pid)
