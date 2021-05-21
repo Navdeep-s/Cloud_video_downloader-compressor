@@ -266,7 +266,7 @@ class my_ft:
 
 BUFFER_SIZE = 1024
 ROOT_FOLDER = os.getcwd()
-INPUT_FOLDER = os.path.join(ROOT_FOLDER,"input1")
+INPUT_FOLDER = os.path.join(ROOT_FOLDER,"download_folder")
 OUTPUT_FOLDER = os.path.join(ROOT_FOLDER,"output")
 
 
