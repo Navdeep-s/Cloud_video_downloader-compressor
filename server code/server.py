@@ -15,7 +15,7 @@ TEXT = 33
 root_path = os.getcwd()
 
 
-
+running_processes = []
 
 
 config = open("config.json")
@@ -346,6 +346,7 @@ def run_child(python_file_path,command):
 		if(newpid==0):
 			os.execvp(args[0],args)
 		else:
+			running_processes.append(newpid)
 			print(f"child has spawn with p id {newpid}")
 
 												
@@ -450,7 +451,8 @@ while True:
 		print ('Got connection from', addr )
 		ft = my_ft(c)
 		handle_client(ft)
-
+		for k in running_processes:
+			waitpid(k,os.WNOHANG)
 		try:
 			c.close() 
 		except Exception:
