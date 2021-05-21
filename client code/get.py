@@ -378,8 +378,9 @@ def getter(ft):
 			ft.send_text(magnet_link)
 			print("Download has been started")
 		elif(choice==SCREENSHOT):
-			number_of_ss = get_input_index(300,"How many screen shot do you want")
+			number_of_ss = get_input_index(300,"How many screen shot do you want\n")
 			ft.send_int(number_of_ss)
+			print("wait for some while server is doing processing")
 			ft.recieve_something(".")
 	except Exception as e:
 		print("error in getter",e)
