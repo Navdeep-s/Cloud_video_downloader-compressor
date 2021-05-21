@@ -359,7 +359,7 @@ def getter(ft):
 			message = "0 to download\n1 to compress\n2 to delete\n3 to download torrent\n"
 			choice = choices_option[get_input_index(len(choices_option),message)+1]
 		else:
-			message = "0 to download\n1 to compress\n2 to delete\n3 to download torrent\n4 to download screenshot"
+			message = "0 to download\n1 to compress\n2 to delete\n3 to download torrent\n4 to download screenshot\n"
 			choice = choices_option[get_input_index(len(choices_option),message)+1]
 
 			
