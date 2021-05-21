@@ -36,7 +36,12 @@
   
   
   
+## Notes 
+* the ip address in the config file of client side should be the ip on which you server machine is hosted. Suppose your machine is in a private netwok like in your institute or organisation then the ip will be that's mahines local ip not public ip.
+* To connect over the internet you should make sure that port forwarding on your server machine is on and there is a port bound rule which bound the port which is there in the config file of server and client side.
+* For any queries raise an issue :)
   
   
   
   
+
