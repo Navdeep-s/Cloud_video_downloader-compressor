@@ -28,6 +28,7 @@
   * * **compress** - Choosing this will result in compressing the video file. It will only work on video files. If you choose this option on a directory it will recursive compress all the video files present in it
   * * **delete** - this will delete any file or folder which you selected
   * * **download torrent** - here name is bit confusing but this can be use to download any link like direct link, magnet link, ftp link etc. You can also download torrent from a file if you don't have a magnet by first sending that torrent file to the server using send.py and then choosing this option in get.py and provide the complete name of the torrent file as input.
+  * For files like mp4, mpeg, avi etc one another option **download screenshot** is also provided which you can use to get a tiled screenshot image from the whole video.It will first ask you number of screen shot you want and then after little bit of process will give you the screenshot file.
   
 * If you choose a directory it will give you one option to get inside it 
   
