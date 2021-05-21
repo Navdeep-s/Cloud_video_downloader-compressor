@@ -285,9 +285,11 @@ DELETE =45
 DOWNLOAD =67
 COMPRESS = 57
 TORRENT = 36
+SCREENSHOT = 91
 
 
-choices_option = [GET_INSIDE,DOWNLOAD,COMPRESS,DELETE,TORRENT]
+
+choices_option = [GET_INSIDE,DOWNLOAD,COMPRESS,DELETE,TORRENT,SCREENSHOT]
 
 
 
@@ -300,14 +302,20 @@ def display_folder_contect(u):
 	lis = []
 	for k in u.splitlines():
 		print(f"{count}.) ",end="")
+		temp_lis =[]
 		if(k.endswith("----- folder")):
-			lis.append(1)
+			temp_lis.append(1)
+			temp_lis.append(0)
 			print(Fore.BLUE+k.split("----- folder")[0]+Style.RESET_ALL)
 		else:
-			lis.append(0)
+			temp_lis.append(0)
 			print(Fore.GREEN+k.split("----- file")[0]+Style.RESET_ALL)
+			if(k.split("----- file")[0].split(".")[0].lower() in ["mkv,mpeg,mp4,avi,mov"]):
+				temp_lis.append(1)
+			else:
+				temp_lis.append(0)
 
-		
+		lis.append(temp_lis)
 		count = count+1
 	return lis
 
@@ -339,14 +347,18 @@ def getter(ft):
 			print("No files is there in cloud first upload then use this script")
 			sys.exit()
 		index = get_input_index(count,f"select any folder or file you want from 0 to {count-1}\n")
-		if(lis[index]==1):
+		if(lis[index][0]==1):
 			message = "0 to get inside\n1 to download\n2 to compress\n3 to delete\n4 to download torrent\n"
 			choice = choices_option[get_input_index(len(choices_option),message)]
 			
 
-		else:
+		elif(lis[index][1]==0):
 			message = "0 to download\n1 to compress\n2 to delete\n3 to download torrent\n"
 			choice = choices_option[get_input_index(len(choices_option),message)+1]
+		else:
+			message = "0 to download\n1 to compress\n2 to delete\n3 to download torrent\n4 to download screenshot"
+			choice = choices_option[get_input_index(len(choices_option),message)+1]
+
 			
 		
 		ft.send_int(index)
@@ -363,6 +375,10 @@ def getter(ft):
 			magnet_link = input("provide the magnet link")
 			ft.send_text(magnet_link)
 			print("Download has been started")
+		elif(choice==SCREENSHOT):
+			number_of_ss = get_input_index(300,"How many screen shot do you want")
+			ft.send_int(number_of_ss)
+			ft.recieve_something(".")
 	except Exception as e:
 		print("error in getter",e)
 
