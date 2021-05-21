@@ -345,7 +345,6 @@ def getter(ft):
 
 		lis = display_folder_contect(u)
 		count = len(lis)
-		print(lis)
 		if(count==0):
 			print("No files is there in cloud first upload then use this script")
 			sys.exit()

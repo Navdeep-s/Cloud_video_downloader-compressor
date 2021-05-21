@@ -21,11 +21,10 @@ def give_commands(filename,n):
     count =0
 
     stri = '''-vf  "drawtext=fontsize=100:fontcolor=white:box=1:boxcolor=black:x=(W-tw)/2:y=H-th-10:text='''
-    for k in range(0,video_time,time_gap):
-        print(k)
+    for k in range(time_gap,video_time,time_gap):
         timing =str(datetime.timedelta(seconds=k))
         printed_value = "\\:".join(timing.split(":"))
-        time_list.append(f"ffmpeg -ss {timing} -i \"{filename}\" {stri}'{printed_value}'\" -frames:v 1  temp{count}.jpg")
+        time_list.append(f"ffmpeg -ss {timing} -i \"{filename}\" {stri}'{printed_value}'\" -frames:v 1  temp{count}.jpg 2> /dev/null > /dev/null")
         count = count + 1
     
     return time_list
@@ -58,7 +57,10 @@ for k in y:
     file_name= f'temp{count}.jpg'
     img = cv2.imread(file_name)
     print(file_name)
-    print(img.shape)
+    try:
+        print(img.shape)
+    except Exception:
+        continue
     img1 = cv2.resize(img, dsize = (0,0),fx = 0.5, fy = 0.5)
 
     Temp_list.append(img1)
@@ -76,11 +78,7 @@ if(len(Temp_list)!=0):
     Image_list.append(Temp_list)
 
 
-for k in Image_list:
-    print(len(k))
 
 img_tile = concat_vh(Image_list)
 
-filename = os.path.basename(sys.argv[1])
-
-cv2.imwrite(filename+"_screen_shot.jpg", img_tile)
+cv2.imwrite(sys.argv[1]+"_screen_shot.jpg", img_tile)
