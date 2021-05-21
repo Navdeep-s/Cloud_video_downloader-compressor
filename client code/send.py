@@ -295,7 +295,7 @@ try:
 	port = config_data["port"]
 	host_ip = config_data["ip"]
 except Exception:
-	print("[!!] your configuration file is corrupted \n[!!] copy it from server again from the folder where you install this")
+	print("[!!] your configuration file is corrupted \n[!!] copy it from server again from the folder where you install this or edit is by yourself changing ip an port to correct values")
 	sys.exit()
 
 print("waiting to connect please wait .....")

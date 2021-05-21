@@ -422,7 +422,7 @@ ip = config_data["ip"]
 if(len(sys.argv)>1):
 	port = int(sys.argv[1])
 	print("hello")
-s.bind((ip, port))
+s.bind(("", port))
 print ("socket binded to %s" %(port)) 
 s.listen(0)     
 print ("socket is listening")            
