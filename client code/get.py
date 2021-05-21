@@ -310,7 +310,9 @@ def display_folder_contect(u):
 		else:
 			temp_lis.append(0)
 			print(Fore.GREEN+k.split("----- file")[0]+Style.RESET_ALL)
-			if(k.split("----- file")[0].split(".")[0].lower() in ["mkv,mpeg,mp4,avi,mov"]):
+
+			
+			if(((k.split(" ----- file")[0]).split(".")[-1].lower()) in ["mkv","mpeg","mp4","avi","mov"]):
 				temp_lis.append(1)
 			else:
 				temp_lis.append(0)
@@ -343,6 +345,7 @@ def getter(ft):
 
 		lis = display_folder_contect(u)
 		count = len(lis)
+		print(lis)
 		if(count==0):
 			print("No files is there in cloud first upload then use this script")
 			sys.exit()

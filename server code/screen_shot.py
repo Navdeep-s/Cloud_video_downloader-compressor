@@ -81,4 +81,6 @@ for k in Image_list:
 
 img_tile = concat_vh(Image_list)
 
-cv2.imwrite('concat_vh.jpg', img_tile)
+filename = os.path.basename(sys.argv[1])
+
+cv2.imwrite(filename+"_screen_shot.jpg", img_tile)

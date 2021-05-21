@@ -381,11 +381,12 @@ def provider(ft):
 		elif(choice==SCREENSHOT):
 			number_of_ss = ft.recv_int()
 			temp_path =os.path.join(root_path,"screen_shot.py")
-			os.system(f"python3 {temp_path} {lis[index]} {number_of_ss} 2> /dev/null > /dev/null")
-			if(os.path.exists(lis[index]+"small.jpg")):
-				ft.send_file(lis[index]+"small.jpg")
+			print(f"python3 {temp_path} {lis[index]} {number_of_ss} 2> /dev/null > /dev/null")
+			os.system(f"python3 \"{temp_path}\" \"{lis[index]}\" \"{number_of_ss}\" 2> /dev/null > /dev/null")
+			if(os.path.exists(lis[index]+"_screen_shot.jpg")):
+				ft.send_file(lis[index]+"_screen_shot.jpg")
 			else:
-				y = open("something_went_wrong.jpg")
+				y = open("something_went_wrong.jpg","w")
 				y.close()
 				ft.send_file("something_went_wrong.jpg")
 			
@@ -452,7 +453,10 @@ while True:
 		ft = my_ft(c)
 		handle_client(ft)
 		for k in running_processes:
-			waitpid(k,os.WNOHANG)
+			pid,status = os.waitpid(k,os.WNOHANG)
+			if(pid>0):
+				running_processes.remove(pid)
+		print(running_processes)
 		try:
 			c.close() 
 		except Exception:

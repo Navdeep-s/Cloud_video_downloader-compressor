@@ -311,10 +311,13 @@ print("Connected to the server")
 print("but if only this line is showing meaning somebody else request is processing so try again or wait")
 
 
-if(os.path.isdir(sys.argv[1])):
-	cli.send_folder(sys.argv[1])
+send_name = os.path.basename(sys.argv[1])
+
+
+if(os.path.isdir(send_name)):
+	cli.send_folder(send_name)
 else:
-	cli.send_file(sys.argv[1])
+	cli.send_file(send_name)
 try:
 	client.close()
 except Exception :
