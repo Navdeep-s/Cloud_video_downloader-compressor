@@ -26,5 +26,5 @@ read port
 echo "{ \"ip\" : \"$ip_addr\",\"port\" :  $port }" > config.json
 mv $file /etc/systemd/system/my_cloud.service
 systemctl enable my_cloud  
-systemctl daemon-reaload
+systemctl daemon-reload
 systemctl restart pointless
