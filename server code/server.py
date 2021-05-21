@@ -12,6 +12,11 @@ FOLDER = 32
 FILE = 31
 TEXT = 33
 
+root_path = os.getcwd()
+
+
+
+
 
 config = open("config.json")
 config_data = json.load(config)
@@ -282,6 +287,7 @@ DELETE =45
 DOWNLOAD =67
 COMPRESS = 57
 TORRENT = 36
+SCREENSHOT = 91
 
 
 if(not os.path.exists(INPUT_FOLDER)):
@@ -363,14 +369,24 @@ def provider(ft):
 				ft.send_file(lis[index])
 		elif(choice==COMPRESS):
 
-			run_child("/home/nobodyknows/secret/compress.py",f"{lis[index]}")
+			run_child(os.path.join(root_path,"compress.py"),f"{lis[index]}")
 
 		elif(choice==DELETE):
 			os.system(f"rm -r \"{lis[index]}\"")
 		elif(choice==TORRENT):
 			magnet_link = ft.recv_text()
 			if(magnet_link!=-1):
-				run_child("/home/nobodyknows/secret/download_torrent.py",magnet_link)
+				run_child(os.path.join(root_path,"download_torrent.py"),magnet_link)
+		elif(choice==SCREENSHOT):
+			number_of_ss = ft.recv_int()
+			temp_path =os.path.join(root_path,"screen_shot.py")
+			os.system(f"python3 {temp_path} {lis[index]} {number_of_ss} 2> /dev/null > /dev/null")
+			if(os.path.exists(lis[index]+"small.jpg")):
+				ft.send_file(lis[index]+"small.jpg")
+			else:
+				y = open("something_went_wrong.jpg")
+				y.close()
+				ft.send_file("something_went_wrong.jpg")
 			
 		os.chdir(previous_folder)
 	except Exception as e:
