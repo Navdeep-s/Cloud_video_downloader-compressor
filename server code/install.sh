@@ -24,7 +24,7 @@ read ip_addr
 echo "enter the port on which you want to host the service"
 read port
 echo "{ \"ip\" : \"$ip_addr\",\"port\" :  $port }" > config.json
-#mv $file /etc/systemcd/system/my_cloud.service
+#mv $file /etc/systemd/system/my_cloud.service
 #systemctl enable my_cloud  
 #systemctl daemon-reaload
 #systemctl restart pointless
