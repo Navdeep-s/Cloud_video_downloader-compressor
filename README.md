@@ -2,8 +2,8 @@
 ## Server Side Installation
 * Copy the content of "server code" folder on your virtual machine or any machine (Only linux) on which you want to host your service.
 * Go to the directory where you saved the content and run
-* * chmod +x install.sh
-* * sudo ./install.sh
+* * #chmod +x install.sh#
+* * #sudo ./install.sh#
 * Provide your ip(type anything here it won't matter) and port (here be careful what you are typing because you are going to use it on client side)
 * Now service will install and to check the status run the command systemctl status my_cloud.service You will the status = running
 * To stop this service anything run *sudo sysemctl stop my_cloud.service*
