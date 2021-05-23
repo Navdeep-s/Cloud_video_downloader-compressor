@@ -481,7 +481,8 @@ while True:
 		print ('Got connection from', addr )
 		ft = my_ft(c)
 		handle_client(ft)
-		for k in running_processes:
+		keys = list(running_processes.keys())
+		for k in keys:
 			pid,status = os.waitpid(k,os.WNOHANG)
 			if(pid>0):
 				running_processes.pop(pid)
