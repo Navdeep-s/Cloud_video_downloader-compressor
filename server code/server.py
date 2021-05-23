@@ -3,6 +3,9 @@ import os,sys
 import socket # for socket
 import json
 
+from urllib.parse import unquote
+
+
 BUFFER_SIZE =1024
 DISPLAY_TIME = 1024
 SEND = 1
@@ -15,7 +18,7 @@ TEXT = 33
 root_path = os.getcwd()
 
 
-running_processes = []
+running_processes = {}
 
 
 config = open("config.json")
@@ -323,7 +326,28 @@ def compress(file):
 
 
 
+def give_name(x):
+	try:
+		y  = unquote(x)
+		if("dn=" in y):
+			index = y.index("dn=")
+			new_str = y[index+3:]
+			if("&" in new_str):
+				new_str = new_str[:new_str.index("&")]
+
+
+			return new_str
+		return x
+	except Exception:
+		return x
+
+
+
+
+
+
 def send_content(ft):
+
 	stri = ''
 	y = os.listdir()
 	for k in y:
@@ -346,7 +370,7 @@ def run_child(python_file_path,command,message):
 		if(newpid==0):
 			os.execvp(args[0],args)
 		else:
-			running_processes.append([newpid,message])
+			running_processes[newpid]=message
 			print(f"child has spawn with p id {newpid}")
 
 												
@@ -377,7 +401,7 @@ def provider(ft):
 		elif(choice==TORRENT):
 			magnet_link = ft.recv_text()
 			if(magnet_link!=-1):
-				run_child(os.path.join(root_path,"download_torrent.py"),magnet_link,f"{lis[index]} is still downloading")
+				run_child(os.path.join(root_path,"download_torrent.py"),magnet_link,f"{give_name(magnet_link)} is still downloading")
 		elif(choice==SCREENSHOT):
 			number_of_ss = ft.recv_int()
 			temp_path =os.path.join(root_path,"screen_shot.py")
@@ -416,7 +440,7 @@ def handle_client(ft):
 	elif(conn_type==GET):
 
 		strin = ""
-		for _,message in running_processes:
+		for _,message in running_processes.items():
 			strin =strin+message+"\n"
 		ft.send_text(strin)
 		provider(ft)
@@ -457,10 +481,10 @@ while True:
 		print ('Got connection from', addr )
 		ft = my_ft(c)
 		handle_client(ft)
-		for k,_ in running_processes:
+		for k in running_processes:
 			pid,status = os.waitpid(k,os.WNOHANG)
 			if(pid>0):
-				running_processes.remove(pid)
+				running_processes.pop(pid)
 		print(running_processes)
 		try:
 			c.close() 
