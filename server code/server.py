@@ -35,10 +35,16 @@ class reliable_error(Error):
 	"""Raised when the input value is too small"""
 	pass
 
+
 class my_ft:
+
+	def print_spaces(self,spaces):
+		if(spaces>0):
+			print((spaces-1)*"│  "+"├─",end=" ")
 
 	def __init__(self, client):
 		self.client = client
+		self.spaces = 0
 
 	
 
@@ -96,56 +102,68 @@ class my_ft:
 			print("error in recv_text",e)
 			return -1
 
-	#name should be present on pwd
-	def send_file(self,name):
-		print(f"sending file '{name}'")
+
+	#file_path - absolute path of the file
+	def send_file(self,file_path,spaces=0):
+
+
+		file_name = os.path.basename(file_path)
+		self.print_spaces(spaces)
+		print(f"sending file '{file_name}'")
 
 		try:
 
-			file_size  = os.path.getsize(name)
+			file_size  = os.path.getsize(file_path)
 			self.send_int(FILE,1)
 			#sending name
-			self.send_text(name)
+			self.send_text(file_name)
 			#sending size
 			self.send_int(file_size,8)
 
-			file = open(name,"rb")
+			file = open(file_path,"rb")
 
 			bytes_sent = 0
 			count = 0
 			while(bytes_sent!=file_size):
 				count=count+1
 				if(count%DISPLAY_TIME==0):
-					print("\r {} % done".format(int(bytes_sent*100/file_size)),end="")
+					print("\r",end="")
+					self.print_spaces(spaces)
+					print(" {} % done".format(int(bytes_sent*100/file_size)),end="")
 				sending_size = BUFFER_SIZE
 				if(sending_size>file_size-bytes_sent):
 					sending_size = file_size-bytes_sent
 				read = file.read(sending_size)
 				self.client.sendall(read)
 				bytes_sent = bytes_sent +len(read)
-			print("\r100 % done")
+
+			print("\r",end="")
+			self.print_spaces(spaces)
+			print("100 % done")
 			return 1
 		except Exception as e: 
 			print("Eror in send_file",e)
 			return -1
 
-	#saving folder shloud be present in pwd 
-	def recieve_file(self,saving_folder):
-		previous_folder = os.getcwd()
-		os.chdir(saving_folder)
+	#saving_folder_path - absolute path of folder in which you want to recieve the file
+	def recieve_file(self,saving_folder_path,spaces=0):
 		try:
 			
-			name = self.recv_text()
-			print(f"recieving file '{name}'")
+			file_name = self.recv_text()
+			self.print_spaces(spaces)
+			print(f"recieving file '{file_name}'")
 			file_size= self.recv_int(8)
-			
-			file = open(name,"wb");
+
+			saving_file_path = os.path.join(saving_folder_path,file_name)
+			file = open(saving_file_path,"wb");
 			bytes_recived = 0
 			count = 0
 			while(bytes_recived<file_size):
 				count=count+1
 				if(count%DISPLAY_TIME==0):
-					print("\r {} % done".format(int(bytes_recived*100/file_size)),end="")
+					print("\r",end="")
+					self.print_spaces(spaces)
+					print(" {} % done".format(int(bytes_recived*100/file_size)),end="")
 				size_to_recieve = BUFFER_SIZE
 				remaining_bytes = file_size - bytes_recived
 				if(size_to_recieve > remaining_bytes):
@@ -153,32 +171,32 @@ class my_ft:
 
 				data_bytes = self.client.recv(size_to_recieve)
 				if(len(data_bytes)==0):
-					os.chdir(previous_folder)
 					print("something wierd")
 					return -1
 				
 				bytes_recived = bytes_recived +len(data_bytes)
 				file.write(data_bytes)
 
-			print("\r100 % done")
+			print("\r",end="")
+			self.print_spaces(spaces)
+			print("100 % done")
 			file.close()
 
-			os.chdir(previous_folder)
 			return 1
 		except Exception as e :
 			print("Eror in recieve_file",e)
-			os.chdir(previous_folder)
 			return -1
 
-	#chdir should be looked once again
-	#folder name should be present on pwd
-	def send_folder(self,folder_name):
+	#folder_path - absolute path of the folder 
+	def send_folder(self,folder_path,spaces=0):
 		try:
+			folder_name = os.path.basename(folder_path)
+			self.print_spaces(spaces)
 			print(f"sending folder '{folder_name}'")
-			previous_folder = os.getcwd()
-			y = os.listdir(folder_name)
-			folder_name = os.path.split(folder_name)[1]
-			name_size = len(folder_name)
+
+			folder_content = [os.path.join(folder_path,x) for x in os.listdir(folder_path)]
+			
+			
 			# to tell that folder is being sent
 			self.send_int(FOLDER,1)
 			# to tell the size of name of folder
@@ -189,41 +207,39 @@ class my_ft:
 
 			# self.client.sendall(name_size.to_bytes(4, byteorder='big'))
 			# name_size= int.from_bytes(name_size_bytes, byteorder='big')
-			number_of_files  = len(y)
+			number_of_files  = len(folder_content)
 			
 			#sending number of files
 			self.send_int(number_of_files,4)
 			
 
 			#go inside that folder
-			os.chdir(folder_name)
-			for k in y:
+
+			
+			for k in folder_content:
 				if(os.path.isdir(k)):
-					if(self.send_folder(k)==-1):
-						os.chdir(previous_folder)
+					if(self.send_folder(k,spaces+1)==-1):
+						
 						return -1
 				else:
-					if(self.send_file(k)==-1):
-						os.chdir(previous_folder)
+					if(self.send_file(k,spaces+1)==-1):
+						
 						return -1
 
 			#get out of the folder
-			os.chdir(previous_folder)
+			
 			return 1
 		except Exception as e:
 			print("Error in sending folder",e)
-			os.chdir(previous_folder)
+			
 			return -1
 
 
-	#chdir should be looked once again
-	#saving_folder should be presented in pwd
-	def recieve_something(self,saving_folder):
+	#saving_folder_path - absolute path where you want to save the file
+	def recieve_something(self,saving_folder_path,spaces=0):
 
 		try:
 
-			previous_folder = os.getcwd()
-			os.chdir(saving_folder)
 
 			item_type = self.recv_int(1)
 
@@ -232,27 +248,28 @@ class my_ft:
 				folder_name = self.recv_text()
 				number_of_files= self.recv_int(4)
 				
+				new_folder_path = os.path.join(saving_folder_path,folder_name)
 				
-				
-				if(not os.path.exists(folder_name)):
-					os.mkdir(folder_name)
+				if(not os.path.exists(new_folder_path)):
+					os.mkdir(new_folder_path)
+
+				self.print_spaces(spaces)
 				print(f"recieving folder '{folder_name}'")
 				for k in range(number_of_files):
-					if(self.recieve_something(folder_name)==-1):
-						os.chdir(previous_folder)
+					if(self.recieve_something(new_folder_path,spaces+1)==-1):
+						
 						return -1
 
 
 			elif(item_type==FILE):
 				# print("geting a file")
-				if(self.recieve_file(".")==-1):
-					os.chdir(previous_folder)
+				if(self.recieve_file(saving_folder_path,spaces)==-1):
+					
 					return -1
 			
-			os.chdir(previous_folder)
 			return 1
 		except Exception as e:
-			os.chdir(previous_folder)
+
 			print("Error in reciving folder",e)
 			return -1
 
@@ -292,24 +309,6 @@ os.chdir(INPUT_FOLDER)
 
 
 
-def compress(file):
-
-	try:
-		if(not os.path.isdir(file)):
-				name = ".".join(file.split(".")[:-1])
-				print(f"doing {name}")
-				os.system(f"ffmpeg -n -i \"{file}\" -vcodec libx264 -crf 37 -preset faster \"{name}.avi\" 2> /dev/null > /dev/null ")
-				if(f"{name}.avi" in os.listdir()):
-					os.remove(file)
-		else:
-			previous_folder = os.getcwd()	
-			os.chdir(file)
-			y = os.listdir()
-			for k in y:
-				compress(k)
-			os.chdir(previous_folder)
-	except Exception as e:
-		print("error in compress",e)
 
 
 
@@ -333,10 +332,10 @@ def give_name(x):
 
 
 
-def send_content(ft):
+def send_content(ft,path):
 
 	stri = ''
-	y = os.listdir()
+	y = os.listdir(path)
 	for k in y:
 		if(os.path.isdir(k)):
 			stri = stri+k+"\n"+'1'+"\n"
@@ -361,30 +360,31 @@ def run_child(python_file_path,command,message):
 			print(f"child has spawn with p id {newpid}")
 
 												
-def provider(ft):
+def provider(ft,base_path):
 	try:
-		previous_folder = os.getcwd()
-		lis = send_content(ft)
+	
+		lis = send_content(ft,base_path)
 		index = ft.recv_int()
 		choice = ft.recv_int(1)
 		print("choice made is",choice)
+
+		selected_file_path = os.path.join(base_path,lis[index])
 		if(choice == GET_INSIDE):
-			if(os.path.isdir(lis[index])):
-				os.chdir(lis[index])
-				provider(ft)
+			if(os.path.isdir(selected_file_path)):
+				provider(ft,selected_file_path)
 			else:
 				provider(ft)
 		elif(choice ==DOWNLOAD):
-			if(os.path.isdir(lis[index])):
-				ft.send_folder(lis[index])
+			if(os.path.isdir(selected_file_path)):
+				ft.send_folder(selected_file_path)
 			else:
-				ft.send_file(lis[index])
+				ft.send_file(selected_file_path)
 		elif(choice==COMPRESS):
 
-			run_child(os.path.join(root_path,"compress.py"),f"{lis[index]}",f"compression of {lis[index]} is pending")
+			run_child(os.path.join(root_path,"compress.py"),f"{selected_file_path}",f"compression of {selected_file_path} is pending")
 
 		elif(choice==DELETE):
-			os.system(f"rm -r \"{lis[index]}\"")
+			os.system(f"rm -r \"{selected_file_path}\"")
 		elif(choice==TORRENT):
 			magnet_link = ft.recv_text()
 			if(magnet_link!=-1):
@@ -392,16 +392,15 @@ def provider(ft):
 		elif(choice==SCREENSHOT):
 			number_of_ss = ft.recv_int()
 			temp_path =os.path.join(root_path,"screen_shot.py")
-			print(f"python3 {temp_path} {lis[index]} {number_of_ss} 2> /dev/null > /dev/null")
-			os.system(f"python3 \"{temp_path}\" \"{lis[index]}\" \"{number_of_ss}\" 2> /dev/null > /dev/null")
-			if(os.path.exists(lis[index]+"_screen_shot.jpg")):
-				ft.send_file(lis[index]+"_screen_shot.jpg")
+			print(f"python3 {temp_path} {selected_file_path} {number_of_ss} 2> /dev/null > /dev/null")
+			os.system(f"python3 \"{temp_path}\" \"{selected_file_path}\" \"{number_of_ss}\" 2> /dev/null > /dev/null")
+			if(os.path.exists(selected_file_path+"_screen_shot.jpg")):
+				ft.send_file(selected_file_path+"_screen_shot.jpg")
 			else:
 				y = open("something_went_wrong.jpg","w")
 				y.close()
 				ft.send_file("something_went_wrong.jpg")
 			
-		os.chdir(previous_folder)
 	except Exception as e:
 		print("error in provider",e)
 		
@@ -442,7 +441,7 @@ def handle_client(ft):
 		for _,message in running_processes.items():
 			strin =strin+message+"\n"
 		ft.send_text(strin)
-		provider(ft)
+		provider(ft,INPUT_FOLDER)
 		
 
 
