@@ -14,8 +14,8 @@ def compress(file):
             if(file.split(".")[-1] in exten):
                 print(f"doing {file}")
                 # os.system(f"ffmpeg -i \"{file}\" -c:v libx264 -crf 23 -preset faster -c:a aac -b:a 128k -movflags +faststart -vf scale=-2:720,format=yuv420p \"{name}_small.mp4\" 2> /dev/null > /dev/null ")
-                
-                os.system(f"ffmpeg -n -i \"{file}\" -vcodec libx265 -crf 28 \"{name}_small.mp4\" 2> /dev/null > /dev/null ")
+                os.system(f"ffmpeg -n -i \"{file}\" -vcodec libx264 -crf 28 -preset slower \"{name}_small.mp4\" 2> /dev/null > /dev/null ")                
+                # os.system(f"ffmpeg -n -i \"{file}\" -vcodec libx265 -crf 28 \"{name}_small.mp4\" 2> /dev/null > /dev/null ")
                 #os.system(f"ffmpeg -n -i \"{file}\" -vcodec libx264 -crf 37 -preset faster \"{name}.avi\" ")
                 print("done")
                 if(f"{name}_small.mp4" in os.listdir()):

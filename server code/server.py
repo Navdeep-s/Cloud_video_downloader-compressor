@@ -75,9 +75,8 @@ class my_ft:
 	def send_text(self,text):
 		try:
 			
-			to_send = bytes(text,"utf-8",errors = 'replace')
+			to_send = bytes(text,"utf-16",errors = 'replace')
 			text_size = len(to_send)
-			# self.client.sendall(TEXT.to_bytes(1,byteorder='big'))
 			self.client.sendall(text_size.to_bytes(4, byteorder='big'))
 			self.client.sendall(to_send)
 			return 1
@@ -91,7 +90,7 @@ class my_ft:
 			text_size_bytes = self.reliable_recv(4)
 			text_size= int.from_bytes(text_size_bytes, byteorder='big')
 			text_bytes = self.reliable_recv(text_size)
-			text = text_bytes.decode("utf-8",errors = 'replace')
+			text = text_bytes.decode("utf-16",errors = 'replace')
 			return text
 		except Exception as e:
 			print("error in recv_text",e)
@@ -102,17 +101,13 @@ class my_ft:
 		print(f"sending file '{name}'")
 
 		try:
+
 			file_size  = os.path.getsize(name)
-			name_size = len(name)
-
-			self.client.sendall(FILE.to_bytes(1,byteorder='big'))
-			#int
-			self.client.sendall(name_size.to_bytes(4, byteorder='big'))
-			#str
-			self.client.sendall(bytes(name,"utf-8"))
-
-			#long long
-			self.client.sendall(file_size.to_bytes(8, byteorder='big'))
+			self.send_int(FILE,1)
+			#sending name
+			self.send_text(name)
+			#sending size
+			self.send_int(file_size,8)
 
 			file = open(name,"rb")
 
@@ -139,15 +134,10 @@ class my_ft:
 		previous_folder = os.getcwd()
 		os.chdir(saving_folder)
 		try:
-			name_size_bytes = self.reliable_recv(4)
-			name_size= int.from_bytes(name_size_bytes, byteorder='big')
-			name_bytes = self.reliable_recv(name_size)
-			name = name_bytes.decode("utf-8")
+			
+			name = self.recv_text()
 			print(f"recieving file '{name}'")
-
-
-			file_size_bytes = self.reliable_recv(8)
-			file_size= int.from_bytes(file_size_bytes, byteorder='big')
+			file_size= self.recv_int(8)
 			
 			file = open(name,"wb");
 			bytes_recived = 0
@@ -164,6 +154,7 @@ class my_ft:
 				data_bytes = self.client.recv(size_to_recieve)
 				if(len(data_bytes)==0):
 					os.chdir(previous_folder)
+					print("something wierd")
 					return -1
 				
 				bytes_recived = bytes_recived +len(data_bytes)
@@ -189,11 +180,11 @@ class my_ft:
 			folder_name = os.path.split(folder_name)[1]
 			name_size = len(folder_name)
 			# to tell that folder is being sent
-			self.client.sendall(FOLDER.to_bytes(1,byteorder='big'))
+			self.send_int(FOLDER,1)
 			# to tell the size of name of folder
-			self.client.sendall(name_size.to_bytes(4, byteorder='big'))
-			#sending name of the folder
-			self.client.sendall(bytes(folder_name,"utf-8"))
+			self.send_text(folder_name)
+			
+			
 
 
 			# self.client.sendall(name_size.to_bytes(4, byteorder='big'))
@@ -201,7 +192,8 @@ class my_ft:
 			number_of_files  = len(y)
 			
 			#sending number of files
-			self.client.sendall(number_of_files.to_bytes(4,byteorder='big'))
+			self.send_int(number_of_files,4)
+			
 
 			#go inside that folder
 			os.chdir(folder_name)
@@ -233,17 +225,13 @@ class my_ft:
 			previous_folder = os.getcwd()
 			os.chdir(saving_folder)
 
-			item_type_bytes = self.reliable_recv(1)
-			item_type= int.from_bytes(item_type_bytes, byteorder='big')
+			item_type = self.recv_int(1)
 
 			if(item_type==FOLDER):
-				folder_name_size_bytes = self.reliable_recv(4)
-				folder_name_size= int.from_bytes(folder_name_size_bytes, byteorder='big')
-				folder_name_bytes = self.reliable_recv(folder_name_size)
-				folder_name = folder_name_bytes.decode("utf-8")
 
-				number_of_files_bytes = self.reliable_recv(4)
-				number_of_files= int.from_bytes(number_of_files_bytes, byteorder='big')
+				folder_name = self.recv_text()
+				number_of_files= self.recv_int(4)
+				
 				
 				
 				if(not os.path.exists(folder_name)):
@@ -267,7 +255,6 @@ class my_ft:
 			os.chdir(previous_folder)
 			print("Error in reciving folder",e)
 			return -1
-
 
 
 
@@ -425,6 +412,18 @@ def provider(ft):
 	
 def handle_client(ft):
 	u = ft.reliable_recv(1)
+
+	try:
+
+
+		keys = list(running_processes.keys())
+		for k in keys:
+			pid,status = os.waitpid(k,os.WNOHANG)
+			if(pid>0):
+				running_processes.pop(pid)
+	except Exception:
+		pass
+
 	conn_type = int.from_bytes(u, byteorder='big')
 	if(conn_type==SEND):
 		#remove old files
