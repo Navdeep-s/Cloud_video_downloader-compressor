@@ -337,7 +337,7 @@ def send_content(ft,path):
 	stri = ''
 	y = os.listdir(path)
 	for k in y:
-		if(os.path.isdir(k)):
+		if(os.path.isdir(os.path.join(path,k))):
 			stri = stri+k+"\n"+'1'+"\n"
 		else:
 			stri = stri+k+"\n"+'0'+"\n"
