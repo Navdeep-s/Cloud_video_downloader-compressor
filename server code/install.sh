@@ -1,3 +1,5 @@
+apt-get update
+
 file="test.txt"
 
 script_file="start_script.sh"
