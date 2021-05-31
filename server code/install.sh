@@ -1,4 +1,6 @@
 apt-get update
+apt-get install aria2
+apt-get install ffmpeg
 
 file="test.txt"
 
@@ -9,7 +11,7 @@ echo "python3 server.py" >> $script_file
 
 chmod +x $script_file
 
-apt-get install ffmpeg 
+
 
 
 echo "[Unit]" > $file
