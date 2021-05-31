@@ -1,6 +1,9 @@
 apt-get update
 apt-get install aria2
 apt-get install ffmpeg
+apt-get install python3-pip
+pip3 install opencv-python
+
 
 file="test.txt"
 
