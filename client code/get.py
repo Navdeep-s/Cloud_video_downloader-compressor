@@ -298,8 +298,8 @@ choices_option = [GET_INSIDE,DOWNLOAD,COMPRESS,DELETE,TORRENT,SCREENSHOT]
 
 def display_folder_contect(u):
 	
-	u = " ----- folder".join(u.split("\n1"))
-	u = " ----- file".join(u.split("\n0"))
+	u = " ----- folder\n".join(u.split("\n1\n"))
+	u = " ----- file\n".join(u.split("\n0\n"))
 	count = 0
 	lis = []
 	for k in u.splitlines():
