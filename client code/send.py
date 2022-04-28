@@ -288,6 +288,9 @@ if(not os.path.exists(sys.argv[1])):
 	print(f"'{sys.argv[1]}' named file or folder doesn't exist")
 	sys.exit()
 
+dirName = os.path.dirname(sys.argv[1])
+if(dirName!=""):
+	os.chdir(dirName)
 # os.chdir(os.path.dirname(sys.argv[1]))
 
 try:
